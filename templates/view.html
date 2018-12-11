@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Lotto</title>
+        <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+        <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+        <meta http-equiv="refresh" content="60" >
+    </head>
+
+<script>
+$(document).on('click', '.panel div.clickable', function (e) {
+    var $this = $(this);
+    if (!$this.hasClass('panel-collapsed')) {
+        $this.parents('.panel').find('.panel-body').slideUp(100);
+        $this.addClass('panel-collapsed');
+        $this.find('i').removeClass('glyphicon-minus').addClass('glyphicon-plus');
+    } else {
+        $this.parents('.panel').find('.panel-body').slideDown();
+        $this.removeClass('panel-collapsed');
+        $this.find('i').removeClass('glyphicon-plus').addClass('glyphicon-minus');
+    }
+});
+$(document).ready(function () {
+  $('.panel div.clickable').click();
+});
+</script>
+<style>
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+.bimg {
+  background-size: cover;
+  background-image: url("/public/background.png");
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+.clickable
+{
+    cursor: pointer;
+}
+
+.clickable .glyphicon
+{
+    background: rgba(0, 0, 0, 0.15);
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 4px
+}
+
+.panel-heading span
+{
+    margin-top: -23px;
+    font-size: 15px;
+    margin-right: -9px;
+}
+a.clickable { color: inherit; }
+a.clickable:hover { text-decoration:none; }
+</style>
+
+<body class="bimg">
+<h1>Lotto Dashboard</h1>
+<form action="/view.html">
+  <table style="width:auto">
+    <tr>
+      <th>
+        Mothership Version:
+        <select name="mothershipVersion">
+          <option value=all>-</option>
+          {{range .MVersions}}
+          <option value={{.}}
+          {{if eq . $.PreviousFilter.MothershipVersion}}
+          selected
+          {{end}}
+          >{{.}}</option>
+          {{end}}
+        </select>
+      </th>
+      <th>
+        IncludeOS Version:
+        <select name="includeosVersion">
+          <option value=all>-</option>
+          {{range .IosVersions}}
+          <option value={{.}}
+          {{if eq . $.PreviousFilter.IncludeOSVersion}}
+          selected
+          {{end}}
+          >{{.}}</option>
+          {{end}}
+        </select>
+      </th>
+      <th>
+        Environments:
+        <select name="environment">
+          <option value=all>-</option>
+          {{range .Environments}}
+          <option value={{.}}
+          {{if eq . $.PreviousFilter.Environment}}
+          selected
+          {{end}}
+          >{{.}}</option>
+          {{end}}
+        </select>
+      </th>
+      <th>
+        Test Name:
+        <select name="testName">
+          <option value=all>-</option>
+          {{range .TestNames}}
+          <option value={{.}}
+          {{if eq . $.PreviousFilter.TestName}}
+          selected
+          {{end}}
+          >{{.}}</option>
+          {{end}}
+        </select>
+      </th>
+    </tr>
+  </table>
+  <input type="submit">
+</form>
+<form action="/view.html">
+    <input type="submit" value="Clear" />
+</form>
+
+<br>
+{{range $value := .ResultIDs}}
+  {{ $testCollection := index $.Tests .GetID }}
+  <div class="panel panel-primary">
+      <div class="panel-heading clickable">
+          <h3 class="panel-title">
+            <table>
+              <tr>
+                <th>Test name</th>
+                <th>Mothership Version</th>
+                <th>IncludeOS Version</th>
+                <th>Environment</th>
+                <th>Number of results</th>
+                <th>Success percentage</th>
+                <th>Total sent</th>
+                <th>Total received</th>
+              </tr>
+              <tr style="background-color:#3366ff">
+                {{if eq .TestName "100"}}
+                hey
+                {{end}}
+                <td>{{.TestName}}</td>
+                <td>{{.MothershipVersion}}</td>
+                <td>{{.IncludeOSVersion}}</td>
+                <td>{{.Environment}}</td>
+                <td>{{$testCollection.NumRuns}}</td>
+                {{if gt $testCollection.Failed 1 }}
+                <td bgcolor="#cc0000">
+                {{else}}
+                <td>
+                {{end}}
+                {{$testCollection.SuccessPercentage}}% {{$testCollection.Passed}}/{{$testCollection.NumRuns}}</td>
+                <td>{{$testCollection.TotalSent}}</td>
+                <td>{{$testCollection.TotaltReceived}}</td>
+              </tr>
+            </table>
+          </h3>
+        <span class="pull-right "><i class="glyphicon glyphicon-minus"></i></span>
+      </div>
+      <div class="panel-body">
+        <table style="width:100%">
+          <tr>
+            <th>Sent</th>
+            <th>Received</th>
+            <th>Duration</th>
+            <th>Success</th>
+          </tr>
+        {{ range $testCollection.Results }}
+        <tr>
+          <td>{{.Sent}}</td>
+          <td>{{.Received}}</td>
+          <td>{{.Duration}}</td>
+          <td>{{.Success}}</td>
+        </tr>
+        {{end}}
+        </table>
+      </div>
+  </div>
+{{end}}
+
+
+</body>
+</html>

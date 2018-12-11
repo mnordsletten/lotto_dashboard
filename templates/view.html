@@ -150,15 +150,12 @@ a.clickable:hover { text-decoration:none; }
                 <th>Total received</th>
               </tr>
               <tr style="background-color:#3366ff">
-                {{if eq .TestName "100"}}
-                hey
-                {{end}}
                 <td>{{.TestName}}</td>
                 <td>{{.MothershipVersion}}</td>
                 <td>{{.IncludeOSVersion}}</td>
                 <td>{{.Environment}}</td>
                 <td>{{$testCollection.NumRuns}}</td>
-                {{if gt $testCollection.Failed 1 }}
+                {{if gt $testCollection.Failed 0 }}
                 <td bgcolor="#cc0000">
                 {{else}}
                 <td>

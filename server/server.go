@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"html/template"
 	"log"
-	"martin/lotto_dashboard/lottotest"
 	"net/http"
 	"path"
+
+	"github.com/mnordsletten/lotto_dashboard/lottotest"
 )
 
 var resultStore = &lottotest.ResultStore{}

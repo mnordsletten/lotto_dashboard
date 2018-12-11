@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"martin/lotto_dashboard/server"
 	"os"
 	"strconv"
+
+	"github.com/mnordsletten/lotto_dashboard/server"
 )
 
 func main() {

@@ -86,10 +86,11 @@ func (rs *ResultStore) AddIdentifier(i Identifier) {
 func (rs *ResultStore) AddResult(newResult TestResult) {
 	rs.AddIdentifier(newResult.Identifier)
 	id := newResult.Identifier.GetID()
-	if _, ok := rs.Tests[id]; ok {
-		rs.Tests[id].AddResultToTestCollection(newResult)
-	} else {
-		rs.Tests[id] = NewTestCollection(newResult)
+	if _, ok := rs.Tests[id]; !ok {
+		rs.Tests[id] = NewTestCollection(newResult.Identifier)
+	}
+	if err := rs.Tests[id].AddResultToTestCollection(newResult); err != nil {
+		fmt.Printf("Error adding test: %v", err)
 	}
 }
 

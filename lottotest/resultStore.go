@@ -1,8 +1,12 @@
 package lottotest
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
+	"os"
+	"path/filepath"
 	"reflect"
 	"time"
 
@@ -48,7 +52,7 @@ func (rs *ResultStore) AddRandom(num int) {
 		x.Sent = r.Int()
 		x.Received = r.Int()
 		x.Success = randomdata.Boolean()
-		rs.AddResult(x)
+		rs.AddResult(x, true)
 	}
 }
 
@@ -83,15 +87,42 @@ func (rs *ResultStore) AddIdentifier(i Identifier) {
 	}
 }
 
-func (rs *ResultStore) AddResult(newResult TestResult) {
+func (rs *ResultStore) AddResult(newResult TestResult, save bool) {
 	rs.AddIdentifier(newResult.Identifier)
 	id := newResult.Identifier.GetID()
 	if _, ok := rs.Tests[id]; !ok {
 		rs.Tests[id] = NewTestCollection(newResult.Identifier)
 	}
-	if err := rs.Tests[id].AddResultToTestCollection(newResult); err != nil {
-		fmt.Printf("Error adding test: %v", err)
+	if save {
+		if err := rs.Tests[id].AddResultToTestCollectionAndSaveToFile(newResult); err != nil {
+			fmt.Printf("Error adding test: %v", err)
+		}
+	} else {
+		rs.Tests[id].AddResultToTestCollection(newResult)
 	}
+
+}
+
+func (rs *ResultStore) LoadFiles(files string) error {
+	if err := filepath.Walk(files, func(path string, info os.FileInfo, err error) error {
+		if !info.IsDir() {
+			fmt.Printf("reading file: %s\n", path)
+			data, err := ioutil.ReadFile(path)
+			if err != nil {
+				fmt.Printf("error reading json file %s: %v", path, err)
+				return nil
+			}
+			result := TestResult{}
+			if err = json.Unmarshal(data, &result); err != nil {
+				fmt.Printf("error unmarshaling file %s: %v", path, err)
+			}
+			rs.AddResult(result, false)
+		}
+		return nil
+	}); err != nil {
+		return fmt.Errorf("error reading dir: %v", err)
+	}
+	return nil
 }
 
 func contains2(slice interface{}, e interface{}) bool {

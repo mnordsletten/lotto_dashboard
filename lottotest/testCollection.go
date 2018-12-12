@@ -53,7 +53,7 @@ func NewTestCollection(i Identifier) *TestCollection {
 	return tc
 }
 
-func (tc *TestCollection) AddResultToTestCollection(result TestResult) error {
+func (tc *TestCollection) AddResultToTestCollection(result TestResult) {
 	tc.NumRuns++
 	switch result.Success {
 	case true:
@@ -65,6 +65,10 @@ func (tc *TestCollection) AddResultToTestCollection(result TestResult) error {
 	tc.TotalSent += result.Sent
 	tc.TotaltReceived += result.Received
 	tc.Results = append(tc.Results, result)
+}
+
+func (tc *TestCollection) AddResultToTestCollectionAndSaveToFile(result TestResult) error {
+	tc.AddResultToTestCollection(result)
 	fileName := path.Join("results", fmt.Sprint(result.Identifier.GetID()), fmt.Sprintf("%s.json", tc.nextID()))
 	if err := result.SaveToDisk(fileName); err != nil {
 		return fmt.Errorf("error saving to disk: %v", err)

@@ -15,7 +15,6 @@ import (
 var resultStore = &lottotest.ResultStore{}
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("main handler", r.RequestURI)
 	rs := &lottotest.ResultStore{}
 	*rs = *resultStore
 	// Queries
@@ -56,11 +55,14 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println("received: ", result)
-	resultStore.AddResult(result)
+	resultStore.AddResult(result, true)
 }
 
 func Serve(port int) {
 	resultStore = lottotest.NewResultStore()
+	if err := resultStore.LoadFiles("results"); err != nil {
+		fmt.Println("error loading file: ", err)
+	}
 	http.HandleFunc("/", mainHandler)
 	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "There is no icon, %q", html.EscapeString(r.URL.Path))

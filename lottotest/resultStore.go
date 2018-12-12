@@ -105,6 +105,10 @@ func (rs *ResultStore) AddResult(newResult TestResult, save bool) {
 
 func (rs *ResultStore) LoadFiles(files string) error {
 	if err := filepath.Walk(files, func(path string, info os.FileInfo, err error) error {
+		if os.IsNotExist(err) {
+			fmt.Printf("path %s does not exist\n", path)
+			return nil
+		}
 		if !info.IsDir() {
 			fmt.Printf("reading file: %s\n", path)
 			data, err := ioutil.ReadFile(path)

@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"html"
 	"html/template"
 	"log"
 	"net/http"
@@ -61,6 +62,9 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 func Serve(port int) {
 	resultStore = lottotest.NewResultStore()
 	http.HandleFunc("/", mainHandler)
+	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "There is no icon, %q", html.EscapeString(r.URL.Path))
+	})
 	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("public"))))
 	http.HandleFunc("/upload", uploadHandler)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
